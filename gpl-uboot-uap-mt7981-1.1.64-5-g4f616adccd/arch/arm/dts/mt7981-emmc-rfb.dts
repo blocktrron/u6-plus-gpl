@@ -1,0 +1,188 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2021 MediaTek Inc.
+ * Author: Sam Shih <sam.shih@mediatek.com>
+ */
+
+/dts-v1/;
+#include "mt7981.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	model = "mt7981-rfb";
+	compatible = "mediatek,mt7981", "mediatek,mt7981-rfb";
+	chosen {
+		stdout-path = &uart0;
+		tick-timer = &timer0;
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x40000000 0x10000000>;
+	};
+
+	reg_3p3v: regulator-3p3v {
+                  compatible = "regulator-fixed";
+                  regulator-name = "fixed-3.3V";
+                  regulator-min-microvolt = <3300000>;
+                  regulator-max-microvolt = <3300000>;
+                  regulator-boot-on;
+                  regulator-always-on;
+        };
+    signature {
+        key-uap6_mt7981 {
+            required = "image";
+            algo = "sha1,rsa2048";
+            rsa,r-squared = <0x6287e2cb 0xc460d8ca 0x4cc1ace0 0x6ca3aaac 0x53ee46d0 0xe1dae2ac 0x01473970 0xa3ff61a1 0xaf0c39e4 0x519ff33e 0xee9dbd99 0x606c0e1a 0x56f9364b 0xab483191 0xe315d6c3 0x59397ec4 0x72ad564f 0x3bc0f54a 0x653ac516 0x86c2aea7 0xc2dfadec 0xc71d6232 0x0e025580 0xed7eb97a 0x61f5a270 0x0dfb5155 0x674f17a2 0xd1859134 0xa8556eeb 0x1ea1cf22 0x3aaa78da 0x5661692d 0xc9f13edd 0x9728bdcb 0x72aebdc6 0x3920f9f3 0x998b08bf 0x591bb56f 0xc47b535c 0x67ef22ad 0x513546d2 0x6e735dc8 0xb09fdae4 0x24e0763a 0x19a8a888 0x784c6cad 0x63402b86 0x5b21fb45 0x790f6fd0 0xa259899e 0xf21d25cf 0x34da823c 0xe361bd66 0x1936ec22 0x2d95126e 0x90f51647 0x924e75c3 0x312aef69 0x6341e159 0xa1c36ae0 0xadabe650 0x3e347ad4 0x3f861e04 0x5390f317>;
+            rsa,modulus = <0xb21f1d43 0xe7510128 0x79bd1bb7 0x3ded84fa 0x4e24d12b 0x9c5d65eb 0xaebfabc1 0xc99a73c5 0xcaf59dfb 0xb7ce03e2 0xae7bad5f 0xe47000c7 0x9c2f4b68 0x5fc5f3ee 0x0ddc8184 0x11b48910 0x2aa6a7ea 0xba4f494a 0x76d5bc84 0x9fd2d379 0x9c6e8cf3 0x2157d6b0 0x51875c09 0x810497de 0xb06cff7a 0x72f08c56 0x679a9cbe 0x0de0e76b 0x53b0b2ec 0xc593a47b 0xf00191f8 0x609bb855 0xf4e4cdf5 0x9266e03f 0x83d90407 0xb7828791 0xd1b8ce4b 0x495d8c29 0xb02a31f6 0x3a25e41d 0xe58ffec2 0x8ccd7a0c 0x5008a039 0xa95a3012 0xe3ca24b9 0x72ae52bc 0x0cb46409 0xdac1ff61 0xf74c3f7f 0x89ae915d 0x69fab5cc 0x61771f78 0x07f47dec 0x1ed8275f 0x763ea18e 0xe4293aa4 0xa539703d 0xb4cb15c7 0xd0bda4b9 0xe767e07f 0x61f63f53 0x3a201379 0xbbcd6121 0x4484bfd3>;
+            rsa,exponent = <0x00000000 0x00010001>;
+            rsa,n0-inverse = <0x37210fa5>;
+            rsa,num-bits = <0x00000800>;
+            key-name-hint = "uap6_mt7981";
+        };
+    };
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins>;
+	status = "disabled";
+};
+
+&eth {
+	status = "okay";
+    /*
+	mediatek,gmac-id = <0>;
+	phy-mode = "sgmii";
+	mediatek,switch = "mt7531";
+	reset-gpios = <&gpio 39 GPIO_ACTIVE_HIGH>;
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+    */
+    mediatek,gmac-id = <1>;
+    phy-mode = "gmii";
+    phy-handle = <&phy0>;
+
+	phy0: ethernet-phy@0 {
+	    reg = <0>;
+	};
+};
+
+&pinctrl {
+	spic_pins: spi1-pins-func-1 {
+		mux {
+			function = "spi";
+			groups = "spi1_1";
+		};
+	};
+
+	spi2_flash_pins: spi2-spi2-pins {
+		mux {
+			function = "spi";
+			groups = "spi2", "spi2_wp_hold";
+		};
+
+		conf-pu {
+			pins = "SPI2_CS", "SPI2_HOLD", "SPI2_WP";
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-down = <MTK_PUPD_SET_R1R0_00>;
+		};
+
+		conf-pd {
+			pins = "SPI2_CLK", "SPI2_MOSI", "SPI2_MISO";
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-down = <MTK_PUPD_SET_R1R0_00>;
+		};
+	};
+
+
+	uart1_pins: spi1-pins-func-3 {
+		mux {
+			function = "uart";
+			groups = "uart1_2";
+		};
+	};
+
+	/* pin15 as pwm0 */
+	one_pwm_pins: one-pwm-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0_1";
+		};
+	};
+
+	/* pin15 as pwm0 and pin14 as pwm1 */
+	two_pwm_pins: two-pwm-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0_1", "pwm1_0";
+		};
+	};
+
+	/* pin15 as pwm0, pin14 as pwm1, pin7 as pwm2 */
+	three_pwm_pins: three-pwm-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0_1", "pwm1_0", "pwm2";
+		};
+	};
+
+	mmc0_pins_default: mmc0default {
+		mux {
+			function = "flash";
+			groups =  "emmc_45";
+		};
+	};
+};
+
+&spi2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_flash_pins>;
+	status = "okay";
+	must_tx;
+	enhance_timing;
+	dma_ext;
+	ipm_design;
+	support_quad;
+	tick_dly = <1>;
+	sample_sel = <0>;
+
+	spi_nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <52000000>;
+	};
+};
+
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&two_pwm_pins>;
+	status = "okay";
+};
+
+&watchdog {
+	status = "disabled";
+};
+
+&mmc0 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&mmc0_pins_default>;
+        bus-width = <8>;
+        max-frequency = <52000000>;
+        cap-mmc-highspeed;
+        cap-mmc-hw-reset;
+        vmmc-supply = <&reg_3p3v>;
+        non-removable;
+        status = "okay";
+};
